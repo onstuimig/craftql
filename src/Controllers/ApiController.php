@@ -4,17 +4,14 @@ namespace markhuot\CraftQL\Controllers;
 
 use Craft;
 use craft\web\Controller;
-use craft\records\User;
 use markhuot\CraftQL\CraftQL;
 use markhuot\CraftQL\Models\Token;
-use yii\web\ForbiddenHttpException;
 
 class ApiController extends Controller
 {
     protected $allowAnonymous = ['index'];
 
     private $graphQl;
-    private $request;
 
     function __construct(
         $id,
@@ -86,7 +83,7 @@ class ApiController extends Controller
             ]);
         }
 
-        Craft::trace('CraftQL: Parsing request');
+        Craft::debug('CraftQL: Parsing request');
         if (Craft::$app->request->isPost && $query=Craft::$app->request->post('query')) {
             $input = $query;
         }
@@ -110,19 +107,19 @@ class ApiController extends Controller
             $data = json_decode($data, true);
             $variables = @$data['variables'];
         }
-        Craft::trace('CraftQL: Parsing request complete');
+        Craft::debug('CraftQL: Parsing request complete');
 
-        Craft::trace('CraftQL: Bootstrapping');
+        Craft::debug('CraftQL: Bootstrapping');
         $this->graphQl->bootstrap();
-        Craft::trace('CraftQL: Bootstrapping complete');
+        Craft::debug('CraftQL: Bootstrapping complete');
 
-        Craft::trace('CraftQL: Fetching schema');
+        Craft::debug('CraftQL: Fetching schema');
         $schema = $this->graphQl->getSchema($token);
-        Craft::trace('CraftQL: Schema built');
+        Craft::debug('CraftQL: Schema built');
 
-        Craft::trace('CraftQL: Executing query');
+        Craft::debug('CraftQL: Executing query');
         $result = $this->graphQl->execute($schema, $input, $variables);
-        Craft::trace('CraftQL: Execution complete');
+        Craft::debug('CraftQL: Execution complete');
 
         $customHeaders = CraftQL::getInstance()->getSettings()->headers ?: [];
         foreach ($customHeaders as $key => $value) {
